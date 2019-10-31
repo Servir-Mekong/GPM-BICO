@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en"><Esri><CreaDate>20190510</CreaDate><CreaTime>08402200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><ArcGISstyle>XTools Pro Metadata</ArcGISstyle><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\program files (x86)\arcgis\desktop10.1\ArcToolbox\Toolboxes\Spatial Analyst Tools.tbx\Reclassify" Date="20190510" Time="084022">Reclassify RasterT_MLClass3_PointToRast4 Value "1 0;2 2;3 3;4 1" D:\PhD\ADPC\Raster_LMB\Elev_Groups_3zones.tif DATA</Process></lineage></DataProperties></Esri></metadata>
