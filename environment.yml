@@ -1,0 +1,17 @@
+name: GMP-BICO
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+- python==3.7.3
+- gdal==2.3.3 
+- numpy==1.16.4  
+- pandas==0.25.0
+- netcdf4==1.4.2
+- pyftpdlib==1.5.5 
+- pykrige==1.4.0
+- scipy==1.3.0
+- pyshp==1.2.12
+- scikit-learn==0.21.1
