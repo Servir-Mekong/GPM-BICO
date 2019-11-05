@@ -14,12 +14,16 @@ file is automatically created to allocate the raster files and csv files process
 the simulation. The model contains the following folders:
 
 ● Scripts: Folder holding the scripts of the model
+
 ● RainData: Directory holding the rain gauges input from HYDROmet
+
 ● Inputmaps: Directory holdin the zonification raster file
+
 ● Shapes: Directory holding the rain station points in format *.shp
 In addition, the model contains the following files
 
 ● Ini_config.cgf : The configuration setting for the GPM-BICO tool
+
 ● Runner.bat: Executable file to run the model
 
 ## Dependecies
