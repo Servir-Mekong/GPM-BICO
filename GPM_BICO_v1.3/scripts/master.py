@@ -80,13 +80,13 @@ def GPM_correction():
     # Read MRC daily data     
     RG_matrix = pd.read_csv(os.path.join('RainData',RainGauge),header=None)
     try:
-        DateStart = datetime.strptime( RG_matrix.loc[2,1] , '%d/%m/%Y') #  LOCAL TIME (GMT + 7)
+        DateStart = datetime.strptime( RG_matrix.loc[2,1].replace('-','/') , '%d/%m/%Y') #  LOCAL TIME (GMT + 7)
     except:
-        DateStart = datetime.strptime( RG_matrix.loc[2,1] , '%d/%m/%y') #  LOCAL TIME (GMT + 7)
+        DateStart = datetime.strptime( RG_matrix.loc[2,1].replace('-','/') , '%d/%m/%y') #  LOCAL TIME (GMT + 7)
     try:
-        DateEnd  = datetime.strptime(RG_matrix.loc[3,1] , '%d/%m/%Y') #  LOCAL TIME (GMT + 7)
+        DateEnd  = datetime.strptime(RG_matrix.loc[3,1].replace('-','/') , '%d/%m/%Y') #  LOCAL TIME (GMT + 7)
     except:
-        DateEnd  = datetime.strptime(RG_matrix.loc[3,1] , '%d/%m/%y') #  LOCAL TIME (GMT + 7)
+        DateEnd  = datetime.strptime(RG_matrix.loc[3,1].replace('-','/') , '%d/%m/%y') #  LOCAL TIME (GMT + 7)
     
     Headers = RG_matrix.loc[6,:]
     RG = RG_matrix.loc[8:,:]
