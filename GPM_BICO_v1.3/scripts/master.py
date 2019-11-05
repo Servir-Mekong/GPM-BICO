@@ -92,7 +92,7 @@ def GPM_correction():
     RG = RG_matrix.loc[8:,:]
     RG[RG == Zero_Val] = 0
     RG = RG.rename(columns = Headers)
-    
+    RG = RG[pd.notnull(RG['StaID'])]    
     # correct lag in HYDROMET data
     if Hydroformat == 1:
         DateStart = DateStart- timedelta(days=1)
