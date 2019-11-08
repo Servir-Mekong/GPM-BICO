@@ -48,6 +48,6 @@ In addition, the model contains the following files
 
 ● oi (install using pip e.g. pip install io)
 
-This packages can be installed using anaconda via command prompt.
+These packages can be installed using anaconda via command prompt.
 
      conda env create -f environment.yml 
