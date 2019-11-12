@@ -26,7 +26,7 @@ In addition, the model contains the following files
 
 ● Runner.bat: Executable file to run the model
 
-## Dependecies
+## Dependencies
 
 ● gdal
 
