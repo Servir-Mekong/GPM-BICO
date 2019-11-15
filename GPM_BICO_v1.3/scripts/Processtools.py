@@ -11,6 +11,8 @@ import numpy as np
 from osgeo import gdal,osr
 from math import sqrt
 from sklearn.metrics import mean_squared_error
+
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -114,3 +116,45 @@ def metrics(pred,obs):
     except:
         print('the Number of values is to low to calculate error metrics')
         pass
+
+def plot_perform(SAT,OBS,Rain_valid_BIAS,Correct,GridSRE,Boundaries,Fig_name):
+    
+    import matplotlib.pyplot as plt 
+    zmax = np.round(np.max([SAT,OBS,Rain_valid_BIAS[:,0],Rain_valid_BIAS[:,4]])/10)*10
+    
+    plt.figure(num=None, figsize=(12, 4), dpi=100, facecolor='w', edgecolor='k')
+    
+    plt.subplot(141)
+    plt.imshow(GridSRE,extent=Boundaries,vmin=0,vmax=np.max([Correct,GridSRE]))
+    plt.plot(Rain_valid_BIAS[:,1],Rain_valid_BIAS[:,2],'.r')
+    plt.colorbar(shrink=0.5)
+    plt.title(Fig_name[-12:-4])
+    
+    plt.subplot(143)
+    plt.imshow(Correct,extent=Boundaries,vmin=0,vmax=np.max([Correct,GridSRE]))
+    plt.colorbar(shrink=0.5)
+    
+    plt.subplot(142)
+    mask=np.logical_and(SAT>=0 , OBS>=0)    
+    plt.scatter(OBS[mask],SAT[mask]) 
+    plt.plot([0,zmax],[0,zmax],'r')
+    plt.xlim([0,zmax])
+    plt.ylim([0,zmax])
+    R= np.round(np.corrcoef(OBS[mask],SAT[mask])[0,1],2)
+    plt.xlabel('R: {}'.format(R))
+    plt.title('original')
+    plt.gca().set_aspect('equal', adjustable='box')
+    
+    plt.subplot(144)
+    mask=np.logical_and(Rain_valid_BIAS[:,0]>=0 , Rain_valid_BIAS[:,4]>=0)    
+    plt.scatter(Rain_valid_BIAS[mask,0],Rain_valid_BIAS[mask,4]) 
+    R = np.round(np.corrcoef(Rain_valid_BIAS[mask,0],Rain_valid_BIAS[mask,4])[0,1],2)
+    plt.xlabel('R: {}'.format(R))
+    plt.plot([0,zmax], [0,zmax],'r')
+    plt.xlim([0,zmax])
+    plt.ylim([0,zmax])
+    plt.title('corrected')
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.savefig(Fig_name)
+    plt.close()
+      
