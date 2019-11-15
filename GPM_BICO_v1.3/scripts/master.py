@@ -91,8 +91,8 @@ def GPM_correction():
     Headers = RG_matrix.loc[6,:]
     RG = RG_matrix.loc[8:,:]
     RG[RG == Zero_Val] = 0
-    RG = RG.rename(columns = Headers)
-    RG = RG[pd.notnull(RG['StaID'])]    
+    RG = RG.rename(columns = Headers)    
+    RG = RG[pd.notnull(RG['StaID'])]
     # correct lag in HYDROMET data
     if Hydroformat == 1:
         DateStart = DateStart- timedelta(days=1)
@@ -115,7 +115,7 @@ def GPM_correction():
         
     # BIAS CORRECTION PARAMETERS
     Bias_method = int(cfg.get('Bias parameters','Method'))
-    if Bias_method == 3:
+    if Bias_method == 2:
         WindowsTime = int(cfg.get('SDT','WindowsTime'))
         Elv_Group_name = cfg.get('SDT','Elv_Group_name')
         
@@ -167,7 +167,7 @@ def GPM_correction():
 
     Frame_df = []
     for Day in Dates:           
-    #    Day=Dates[0]
+    #    Day=Dates[5]
         print('GPM corrected ' + Day.strftime('%m/%d/%Y'))
         Rain_valid = biascoor.Valid(Stations,Day,WindowsTime,RG,SRE_points_list)
     
@@ -185,11 +185,10 @@ def GPM_correction():
         if len(Rain_valid) > minn:
             
             if Bias_method == 0:
-                Correct = biascoor.DT(cfg,Day,OBS,SAT,GridSRE,0.1)
+                Correct = biascoor.DT(cfg,Day,OBS,SAT,GridSRE,0.0)
                 
             elif Bias_method == 1:
-                Interpolator= int(cfg.get('SB','Interp'))
-                Interpolator = 3
+                Interpolator= int(cfg.get('SB','Interp'))     
                 Correct = biascoor.SB(cfg,Day,OBS,SAT,GridSRE,Lon,Lat,Boundaries,Interpolator,avgd)  
                 
             elif Bias_method == 2:
@@ -198,21 +197,30 @@ def GPM_correction():
                 filter_SRE = [col for col in Rain_valid if col.startswith('SRE')]
                 SATw = Rain_valid[filter_SRE].values
                 Elv_Groups = gdal.Open(os.path.join(IndDir,'inputmaps',Elv_Group_name)).ReadAsArray()
+                Elv_Groups = Elv_Groups[0:GridSRE.shape[0],0:GridSRE.shape[1]]
                 Cluster = Rain_valid['Group'].values
                 Correct = biascoor.SDT(cfg,Dates,OBSw,SATw,GridSRE,Cluster,WindowsTime,Elv_Groups,minn) 
                 
             elif Bias_method == 3:
-                Correct = biascoor.EQM(cfg,OBS,SAT,GridSRE,RT=0.1)                
+                Correct = biascoor.EQM(cfg,OBS,SAT,GridSRE,RT=0.0)                
         else:
             Correct = biascoor.BiasDefault(cfg,GridSRE,avgd)
             
         ## SAVE DEFAULT ASC         
-        Raster_name = os.path.join(IndDir,'Outputs','BIASCor'+Version[5:],'rain_{0}{1:02d}{2:02d}240000.asc'.format(Day.year,Day.month,Day.day))   
+        Raster_name = os.path.join(IndDir,'Outputs','BIASCor'+Version[5:],'rain_{0}{1:02d}{2:02d}000000.asc'.format(Day.year,Day.month,Day.day))   
         process.save_ascii(Raster_name,Correct,MinLon,MinLat)
         Raster_save = gdal.Open(Raster_name)   
         MRC_step = process.point_extraction(Raster_save,Stations_lyr,HYMOS_col,Day)  
-        Frame_df.append(MRC_step)
+        Frame_df.append(MRC_step)        
         
+        # Diagnostics
+        Plot = int(cfg.get('Diagnostic','plot'))  
+        if Plot ==1:        
+            Rain_valid_BIAS = biascoor.Valid(Stations,Day,WindowsTime,RG,MRC_step)
+            Rain_valid_BIAS = Rain_valid_BIAS.values 
+            Fig_name = os.path.join(IndDir,'Outputs','Correction_{0}{1:02d}{2:02d}.png'.format(Day.year,Day.month,Day.day))
+            process.plot_perform(SAT,OBS,Rain_valid_BIAS,Correct,GridSRE,Boundaries,Fig_name)    
+
 #     Save List    
     SRE_BIASCOR_list = pd.concat(Frame_df, axis=0)    
     SRE_BIASCOR_list.to_csv( os.path.join(IndDir,'Outputs','SRE_BIASCOR_list.csv'))    
