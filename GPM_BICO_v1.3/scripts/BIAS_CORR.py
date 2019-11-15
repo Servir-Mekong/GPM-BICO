@@ -41,9 +41,13 @@ def Valid(Stations,Day,WindowsTime,RG,SRE_points_list):
     # select valid SRE and RG
     RG_day =  pd.DataFrame()
     SRE_day = pd.DataFrame()
+    
     for D in Date_win:
-        RG_day['RG_{0}{1:02d}{2:02d}.asc'.format(D.year,D.month,D.day)] = RG.loc[D]
-        SRE_day['SRE_{0}{1:02d}{2:02d}.asc'.format(D.year,D.month,D.day)] = SRE_points_list.loc[D]
+        try:
+            RG_day['RG_{0}{1:02d}{2:02d}.asc'.format(D.year,D.month,D.day)] = RG.loc[D]
+            SRE_day['SRE_{0}{1:02d}{2:02d}.asc'.format(D.year,D.month,D.day)] = SRE_points_list.loc[D]
+        except:
+            pass
         
     SRE_coord = Coords.join(SRE_day)
     RG_coord = RG_day.join(SRE_coord)
@@ -58,12 +62,12 @@ def BiasDefault(cfg,GridSRE,avgd):
     
     cor_sre = GridSRE * avgd
     cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
-    cor_sre[cor_sre <= 0] = GridSRE[cor_sre <= 0]
+    cor_sre[cor_sre <= 0] = 0
         
     return cor_sre  
 
 ## method 1: Distribution transformation
-def DT(cfg,Date,OBS,SAT,GridSRE,RT=0.1):  
+def DT(cfg,Date,OBS,SAT,GridSRE,RT=0.0):  
     
 #    print('GPM corrected by Distribution transformation method')
     # read default parameters    
@@ -72,11 +76,10 @@ def DT(cfg,Date,OBS,SAT,GridSRE,RT=0.1):
     maxavgf = float(cfg.get('DT','maxavgf'))            # maximum average factor
     maxsdf = float(cfg.get('DT','maxsdf'))          # maximum standard deviation factor      
  
-    SAT_Inten = SAT.ravel()
-    SAT_Inten = SAT_Inten[SAT_Inten>= RT] 
-    OBS_Inten = OBS.ravel()
-    OBS_Inten = OBS_Inten[OBS_Inten>= RT]
-	
+    mask=np.logical_and(SAT>= RT , OBS>= RT)
+    SAT_Inten = SAT[mask]
+    OBS_Inten = OBS[mask]
+    
     # calculate statistics
     OBS_avg = np.mean(OBS_Inten)
     SAT_avg = np.mean(SAT_Inten)
@@ -97,7 +100,7 @@ def DT(cfg,Date,OBS,SAT,GridSRE,RT=0.1):
     # distribution transformation equation    
     cor_sre = ( (GridSRE - SAT_avg ) * stdf ) + ( avgf *  SAT_std )            
     cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
-    cor_sre[cor_sre <= 0] = GridSRE[cor_sre <= 0]  
+    cor_sre[cor_sre <= 0] = 0
 
     return cor_sre        
     
@@ -109,8 +112,10 @@ def SB(cfg,Date,OBS,SAT,GridSRE,Lon,Lat,Boundaries,Interpolator,avgd):
     # Read SRE Coordinates
     px = int((MaxLon - MinLon) / 0.1) #x pixel
     py = int((MaxLat - MinLat) / 0.1) #y pixel
-    grid_Lat = np.linspace(MinLat,MaxLat, num=py)  # Array latitude
-    grid_Lon = np.linspace(MinLon,MaxLon, num=px)  # Array longitude    
+    grid_Lat_ = np.linspace(MinLat,MaxLat, num=py)  # Array latitude
+    grid_Lon_ = np.linspace(MinLon,MaxLon, num=px)  # Array longitude  
+    grid_Lon, grid_Lat = np.meshgrid(grid_Lon_, grid_Lat_)
+    grid_Lon, grid_Lat = grid_Lon.flatten(), grid_Lat.flatten()
     
      # calculate statistics      
     OBS_avg = np.mean(OBS)
@@ -128,18 +133,18 @@ def SB(cfg,Date,OBS,SAT,GridSRE,Lon,Lat,Boundaries,Interpolator,avgd):
         elif Interpolator == 2:
             print( 'interpolating using Ordinary Kriging function')
             ok1 = OrdinaryKriging(Lon,Lat,Loc_bias,variogram_model='spherical',nlags = 10,enable_plotting=False,verbose=False)
-            Vok1,ssd1 = ok1.execute('grid',grid_Lon,grid_Lat)
+            Vok1,ssd1 = ok1.execute('grid',grid_Lon_,grid_Lat_)
             bias_spa = Vok1.data
             
         elif Interpolator >= 3:
             print( 'interpolating using IDW function')
-            grid1  = Interp.iwd(Lon,Lat,Loc_bias,grid_Lon,grid_Lat,2)           
+            grid1  = Interp.iwd(Lon,Lat,Loc_bias,grid_Lon_,grid_Lat_,2)           
             bias_spa  = grid1.T 
 
         # bias correct equation 
         cor_sre = GridSRE +  bias_spa         
         cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
-        cor_sre[cor_sre <= 0] = GridSRE[cor_sre <= 0]              
+        cor_sre[cor_sre <= 0] = 0              
 
     else:
         print('average OBS and SAT lower than 1 correct with default')
@@ -209,25 +214,23 @@ def SDT(cfg,Dates,OBSw,SATw,GridSRE,Cluster,WindowsTime,Elv_Groups,minn):
             SubZone = np.append(SubZone, Zone) 
         
         cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
-        cor_sre[cor_sre <= 0] = GridSRE[cor_sre <= 0]
+        cor_sre[cor_sre <= 0] = 0
     
     if flag == 0:
         print('average OBS and SAT lower than 1 correct with default')
         cor_sre = BiasDefault(cfg,GridSRE,avgd)
-        cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
-        cor_sre[cor_sre <= 0] = GridSRE[cor_sre <= 0]         
+#        cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
+        cor_sre[cor_sre <= 0] = 0         
  
     return(cor_sre)
  
 # method 4: Empirical Quantile mapping
-def EQM(cfg,OBS,SAT,GridSRE,RT=0.1):
+def EQM(cfg,OBS,SAT,GridSRE,RT=0.0):
  
-#    print('GPM corrected by Empirical Quantile mapping')
-   
-    SAT_Inten = SAT.ravel()
-    SAT_Inten = SAT_Inten[SAT_Inten >= RT] 
-    OBS_Inten = OBS.ravel()
-    OBS_Inten = OBS_Inten[OBS_Inten >= RT]
+#    print('GPM corrected by Empirical Quantile mapping')   
+    mask=np.logical_and(SAT>= RT , OBS>= RT)
+    SAT_Inten = SAT[mask]
+    OBS_Inten = OBS[mask]
     
     if (np.mean(OBS_Inten) > RT) and (np.mean(SAT_Inten) > RT):
         cdfn=10            
@@ -246,14 +249,12 @@ def EQM(cfg,OBS,SAT,GridSRE,RT=0.1):
         zbins = np.arange(0.0,global_max+wide,wide)
         
         cdf_gammaMOD = stats.gamma.cdf(zbins, fit_alphaY, fit_locY, fit_betaY)
-        cdf_gammaOBS = stats.gamma.cdf(zbins, fit_alphaO, fit_locO, fit_betaO)        
-           
-        cor_values = map(GridSRE.ravel(),cdf_gammaOBS,cdf_gammaMOD,zbins)  
-          
-        cor_sre = SAT.ravel() 
-        cor_sre[cor_sre>= RT] = cor_values 
-        cor_sre[cor_sre <= 0]  = 0 
-        cor_sre = np.reshape(cor_sre,SAT.shape)
+        cdf_gammaOBS = stats.gamma.cdf(zbins, fit_alphaO, fit_locO, fit_betaO)      
+        cor_sre = map(GridSRE.ravel(),cdf_gammaOBS,cdf_gammaMOD,zbins)            
+
+        cor_sre = np.reshape(cor_sre,GridSRE.shape)
+#        cor_sre[GridSRE <= 0] = GridSRE[GridSRE <= 0]
+        cor_sre[cor_sre <= 0] = 0         
         
     else:
         avgd = float(cfg.get('Bias parameters','avgd'))
