@@ -28,7 +28,7 @@ def GPM_correction():
     print('            bias correction tool (GPM_BICO)                  ')
     print('=============================================================')
     print('     Developed by SERVIR-MEKONG                              ')
-    print('     version 1.3                                             ')
+    print('     version 1.3.2                                             ')
     print('     last updated (01/10/2019)                               ')
     print('     contact: miguel.barajas@adpc.net                        ')
     print('                                                             ')
