@@ -3,7 +3,7 @@ Bias Correction Tool for GPM precipitation data
 
 Operationalization of bias-corrected satellite observations via GPM IMERG products in the Mekong River Commission (MRC) Riverine Flood Forecasting System
 
-Version 1.3
+Version 1.3.2
 
 
 ## HOW TO USE THE MODEL
