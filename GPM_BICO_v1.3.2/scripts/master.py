@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 BIAS CORRECTOR FOR GPM
-version 1.3
+version 1.3.3
 
 @ author: SERVIR MEKONG 
 @ correspondence M.A. LAVERDE-BARAJAS 
