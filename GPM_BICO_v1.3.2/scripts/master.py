@@ -28,8 +28,8 @@ def GPM_correction():
     print('            bias correction tool (GPM_BICO)                  ')
     print('=============================================================')
     print('     Developed by SERVIR-MEKONG                              ')
-    print('     version 1.3.2                                             ')
-    print('     last updated (01/10/2019)                               ')
+    print('     version 1.3.3                                             ')
+    print('     last updated (23/10/2020)                                ')
     print('     contact: miguel.barajas@adpc.net                        ')
     print('                                                             ')
     print('                                       Please wait   ...     ')
@@ -95,6 +95,7 @@ def GPM_correction():
     RG = RG.rename(columns = Headers)    
     RG = RG[pd.notnull(RG['StaID'])]
     RG = RG.reset_index(drop=True)
+    RG= RG[~RG.StaID.str.contains("Date")] # removing label in old HyDROMET
     # correct lag in HYDROMET data
     if Hydroformat == 1:
         DateStart = DateStart- timedelta(days=1)
