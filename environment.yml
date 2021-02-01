@@ -1,4 +1,4 @@
-name: GMP-BICO
+name: GPM-BICO
 
 channels:
   - conda-forge
