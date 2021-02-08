@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 #%%############################################################## 
-#                  IMERG EXTRACTION v 1.3.3
+#                  IMERG EXTRACTION v 1.3.4
 ############################################################### 
 
 @ author: SERVIR MEKONG 
@@ -26,7 +26,7 @@ import Processtools as process
 def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offline):      
     
     # LOAD VRSGS database
-    ftp = FTP('203.146.112.243')
+    ftp = FTP('203.146.112.250')
     ftp.login(user='downloader',passwd='Down0000')
     Indir = '/VRG/'+ SRE_type+ '/'+Version
     
