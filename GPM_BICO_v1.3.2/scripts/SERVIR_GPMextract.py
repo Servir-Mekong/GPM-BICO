@@ -35,7 +35,7 @@ def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offl
         ftp = FTP('216.218.240.199')
         ftp.login(user='ftpuser',passwd=  '@Smekong')
         Indir = '/home/ftpuser/wrf_precip/imerg_30m_early' 
-        print('FTP 203.146.112.250 unavailable switch to 216.218.240.199')
+        print('FTP 203.146.112.250 unavailable... switching to backup server mode')
         vm = 1 
     
     # create Ouputs folder
