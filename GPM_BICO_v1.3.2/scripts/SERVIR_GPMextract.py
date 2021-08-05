@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 #%%############################################################## 
-#                  IMERG EXTRACTION v 1.3.4
+#                  IMERG EXTRACTION v 1.3.5
 ############################################################### 
 
 @ author: SERVIR MEKONG 
@@ -25,10 +25,18 @@ import Processtools as process
 # time_type= 'day'
 def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offline):      
     
-    # LOAD VRSGS database
-    ftp = FTP('203.146.112.250')
-    ftp.login(user='downloader',passwd='Down0000')
-    Indir = '/VRG/'+ SRE_type+ '/'+Version
+    try:    
+        # LOAD VRSGS database	
+        ftp = FTP('203.146.112.250')
+        ftp.login(user='downloader',passwd='Down0000')
+        Indir = '/VRG/'+ SRE_type+ '/'+Version
+        vm = 0
+    except:
+        ftp = FTP('216.218.240.199')
+        ftp.login(user='ftpuser',passwd=  '@Smekong')
+        Indir = '/home/ftpuser/wrf_precip/imerg_30m_early' 
+        print('FTP 203.146.112.250 unavailable switch to 216.218.240.199')
+        vm = 1 
     
     # create Ouputs folder
     Output = os.path.join(IndDir,'Outputs')
@@ -68,9 +76,10 @@ def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offl
     
     while D1 < D2:         
         
-        #%% VRG file 
-        dayYear= (date(D1.year,D1.month,D1.day) - date(D1.year,1,1)).days + 1        
-        VGR_Folder = '{0}/{1:03d}/{2:03d}/MK/'.format(Indir,Date.year,dayYear)
+        if vm == 0:    # VM VRG '203.146.112.250'
+            VGR_Folder = '{0}/{1:03d}/{2:03d}/MK/'.format(Indir,Date.year,dayYear)
+        else:           # VM 216.218.240.199
+            VGR_Folder = '{0}/{1:03d}/{2:03d}/'.format(Indir,Date.year,dayYear)
 #        ftp.cwd(VGR_Folder)
         
         if Version == '30MIN_EARLY':    
