@@ -112,10 +112,11 @@ def GPM_correction():
     if ModelType == 0:
         Dates =  RG.index
     else:
-        Today = datetime.strptime( datetime.today().strftime('%m/%d/%Y') , '%m/%d/%Y')
-        Dates = pd.date_range(Today - timedelta(days = 3),
-		Today - timedelta(days=2), freq='d')	# processing the day before
-        
+        # Today = datetime.strptime( datetime.today().strftime('%m/%d/%Y') , '%m/%d/%Y')
+        # Dates = pd.date_range(Today - timedelta(days = 3),
+	#	Today - timedelta(days=2), freq='d')	# processing the day before
+        Dates = RG[-2:].index
+	
     # BIAS CORRECTION PARAMETERS
     Bias_method = int(cfg.get('Bias parameters','Method'))
     if Bias_method == 2:
@@ -130,7 +131,7 @@ def GPM_correction():
             DatesExtract =  pd.date_range(Dwin ,DateEnd, freq='d')
     else:
         WindowsTime = 0
-        if len(Dates) <= 1:
+        if ModelType == 1:
             DatesExtract = Dates
         else:
             DatesExtract =  pd.date_range(DateStart ,DateEnd, freq='d')
