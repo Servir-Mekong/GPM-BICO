@@ -74,7 +74,10 @@ def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offl
         
     GPM_day=np.zeros([dy_c,dx_c])
     
-    while D1 < D2:         
+    while D1 < D2:       
+        
+        #%% VRG file 
+        dayYear= (date(D1.year,D1.month,D1.day) - date(D1.year,1,1)).days + 1           
         
         if vm == 0:    # VM VRG '203.146.112.250'
             VGR_Folder = '{0}/{1:03d}/{2:03d}/MK/'.format(Indir,Date.year,dayYear)
