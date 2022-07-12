@@ -68,8 +68,8 @@ def extraction(IndDir,SRE_type,Version,Date,Boundaries,saveNETCDF,time_type,offl
         D1 = Date + timedelta(hours=7) 
         D2 = D1 + timedelta(hours=1)     
     else:
-        # Adjust daily data to local time zone (GMT+7) and collection time (+7 hours)
-        D1 = datetime.combine(date(Date.year,Date.month,Date.day), time(14,0))
+        #
+        D1 = datetime.combine(date(Date.year,Date.month,Date.day), time(0,0))
         D2 = D1 + timedelta(hours=24) 
         
     GPM_day=np.zeros([dy_c,dx_c])
